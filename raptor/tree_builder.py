@@ -1,7 +1,7 @@
 import copy
 import logging
 import os
-from abc import abstractclassmethod
+from abc import abstractmethod
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 from typing import Dict, List, Optional, Set, Tuple
@@ -293,8 +293,9 @@ class TreeBuilder:
         tree = Tree(all_nodes, root_nodes, leaf_nodes, self.num_layers, layer_to_nodes)
 
         return tree
-
-    @abstractclassmethod
+    
+    @abstractmethod
+    @classmethod
     def construct_tree(
         self,
         current_level_nodes: Dict[int, Node],

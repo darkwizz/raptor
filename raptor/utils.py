@@ -1,5 +1,6 @@
 import logging
 import re
+import torch
 from typing import Dict, List, Set
 
 import numpy as np
@@ -9,6 +10,27 @@ from scipy import spatial
 from .tree_structures import Node
 
 logging.basicConfig(format="%(asctime)s - %(message)s", level=logging.INFO)
+
+
+def get_distance_metric(metric, emb):
+    if type(emb) is torch.Tensor:
+        distance_metrics = {
+            'cosine': lambda x1, x2: torch.cosine_similarity(x1[None], x2[None]),
+            'L1': lambda x1, x2: torch.cdist(x1[None], x2[None], p=1),
+            'L2': lambda x1, x2: torch.cdist(x1[None], x2[None], p=2),
+        }
+    else:
+        distance_metrics = {
+            "cosine": spatial.distance.cosine,
+            "L1": spatial.distance.cityblock,
+            "L2": spatial.distance.euclidean,
+            "Linf": spatial.distance.chebyshev,
+        }
+    if metric not in distance_metrics:
+        raise ValueError(
+            f"Unsupported distance metric '{metric}'. Supported metrics are: {list(distance_metrics.keys())}"
+        )
+    return distance_metrics[metric]
 
 
 def reverse_mapping(layer_to_nodes: Dict[int, List[Node]]) -> Dict[Node, int]:
@@ -107,22 +129,13 @@ def distances_from_embeddings(
     Returns:
         List[float]: The calculated distances between the query embedding and the list of embeddings.
     """
-    distance_metrics = {
-        "cosine": spatial.distance.cosine,
-        "L1": spatial.distance.cityblock,
-        "L2": spatial.distance.euclidean,
-        "Linf": spatial.distance.chebyshev,
-    }
-
-    if distance_metric not in distance_metrics:
-        raise ValueError(
-            f"Unsupported distance metric '{distance_metric}'. Supported metrics are: {list(distance_metrics.keys())}"
-        )
-
-    distances = [
-        distance_metrics[distance_metric](query_embedding, embedding)
-        for embedding in embeddings
-    ]
+    metric_func = get_distance_metric(distance_metric, query_embedding)
+    distances = []
+    for emb in embeddings:
+        dist = metric_func(query_embedding, emb)
+        if type(dist) is torch.Tensor:
+            dist = dist.item()
+        distances.append(dist)
 
     return distances
 

@@ -209,12 +209,7 @@ class RetrievalAugmentation:
             docs (str): The input text to add to the tree.
         """
         if self.tree is not None:
-            user_input = input(
-                "Warning: Overwriting existing tree. Did you mean to call 'add_to_existing' instead? (y/n): "
-            )
-            if user_input.lower() == "y":
-                # self.add_to_existing(docs)
-                return
+            self.tree.clear()
 
         self.tree = self.tree_builder.build_from_text(text=docs)
         self.retriever = TreeRetriever(self.tree_retriever_config, self.tree)

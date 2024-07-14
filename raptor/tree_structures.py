@@ -26,3 +26,9 @@ class Tree:
         self.leaf_nodes = leaf_nodes
         self.num_layers = num_layers
         self.layer_to_nodes = layer_to_nodes
+    
+    def clear(self):
+        self.all_nodes.clear()
+        self.root_nodes.clear()
+        self.leaf_nodes.clear()
+        self.layer_to_nodes.clear()
