@@ -294,8 +294,8 @@ class TreeBuilder:
 
         return tree
     
-    @abstractmethod
     @classmethod
+    @abstractmethod
     def construct_tree(
         self,
         current_level_nodes: Dict[int, Node],

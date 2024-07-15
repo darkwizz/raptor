@@ -211,7 +211,7 @@ class RetrievalAugmentation:
         if self.tree is not None:
             self.tree.clear()
 
-        self.tree = self.tree_builder.build_from_text(text=docs)
+        self.tree = self.tree_builder.build_from_text(text=docs, use_multithreading=False)
         self.retriever = TreeRetriever(self.tree_retriever_config, self.tree)
 
     def retrieve(
